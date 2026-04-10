@@ -1,25 +1,22 @@
-import useHuggingFace from "../../utils/ai.utils";
-import { badRequest, internalError, success } from "../../utils/response.utils";
+import useHuggingFace, { callGemini } from "../../utils/ai.utils.js";
+import { badRequest, internalError } from "../../utils/response.utils.js";
 
-export const createAIResponse = async (req, res) => {
+export const getHuggingFaceResponse = async (req, res) => {
+  let chat = req.params?.chat || req.body?.chat;
+  let response = await useHuggingFace(chat, process.env.HUGGING_FACE_API_KEY);
+  return res.send(response);
+};
+
+export const getGeminiResponse = async (req, res) => {
   try {
-    // body > params priority
     const prompt = req.body?.prompt || req.params?.chat;
-
     if (!prompt) {
       return badRequest(res, {}, "Prompt is required");
     }
-
-    const response = await useHuggingFace(
-      prompt,
-      process.env.HUGGING_FACE_API_KEY,
-    );
-
-    console.log("AI RESPONSE:", response);
-
-    return success(res, { result: response }, "AI response fetched");
+    const response = await callGemini(prompt);
+    return success(res, { result: response }, "Gemini response fetched");
   } catch (error) {
-    console.log("AI ERROR:", error);
-    return internalError(res, {}, "Failed to fetch AI response");
+    console.log("Gemini ERROR:", error);
+    return internalError(res, {}, "Failed to fetch Gemini response");
   }
-}
+};

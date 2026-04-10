@@ -1,3 +1,5 @@
+import { GoogleGenAI } from "@google/genai";
+
 const useHuggingFace = async (prompt, key) => {
   const finalPrompt = `You are a helpful assistant. Always reply in English. And try to cover full ans in 500 tokens only. Query: ${prompt}`;
   const query = async (data) => {
@@ -39,5 +41,15 @@ const useHuggingFace = async (prompt, key) => {
 
   return response.choices?.[0]?.message?.content || "No response";
 };
+
+const ai = new GoogleGenAI({ apiKey: "AIzaSyAcSLqE-YiUq05CxLuqL2aVnDAe4f3yDpY" });
+
+export async function callGemini(prompt) {
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: prompt,
+  });
+  console.log(response.text);
+}
 
 export default useHuggingFace;
