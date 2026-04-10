@@ -1,6 +1,10 @@
 import User from "../../models/user.model.js";
 import jwt from "jsonwebtoken";
-import { badRequest, customError, success } from "../../utils/response.utils.js";
+import {
+  badRequest,
+  customError,
+  success,
+} from "../../utils/response.utils.js";
 import { sendAccessToken, sendTokens } from "../../utils/auth.util.js";
 
 export const register = async (req, res) => {
@@ -8,7 +12,7 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
 
     const user = await User.create({
-      name: name, // 👈 mapping
+      name: name, // mapping
       email,
       password,
     });
