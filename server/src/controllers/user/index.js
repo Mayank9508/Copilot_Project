@@ -51,6 +51,7 @@ export const refreshToken = (req, res) => {
 
   try {
     const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    console.log("Refresh token payload:", payload);
     sendAccessToken(res, payload);
   } catch (err) {
     return customError(res, {}, 403, "Invalid refresh token");
