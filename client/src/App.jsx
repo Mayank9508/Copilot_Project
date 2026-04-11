@@ -1,12 +1,15 @@
-import React from 'react'
-import AuthLayout from './layouts/AuthLaout.jsx'
+import Sidebar from "./components/Sidebar";
+import Editor from "./components/Editor";
+import ChatPanel from "./components/ChatPanel";
 
-const App = () => {
+export default function App() {
   return (
-    <>
-      <AuthLayout />
-    </>
-  )
+    <div className="h-screen flex bg-[#1e1e1e] text-white">
+      
+      <Sidebar />
+      <Editor />
+      <ChatPanel />
+      
+    </div>
+  );
 }
-
-export default App
