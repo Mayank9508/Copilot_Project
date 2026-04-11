@@ -6,6 +6,7 @@ import {
   success,
 } from "../../utils/response.utils.js";
 import { sendAccessToken, sendTokens } from "../../utils/auth.util.js";
+import { env } from "../../config/env.js";
 
 export const register = async (req, res) => {
   try {
@@ -50,7 +51,7 @@ export const refreshToken = (req, res) => {
   }
 
   try {
-    const payload = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const payload = jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET);
     console.log("Refresh token payload:", payload);
     sendAccessToken(res, payload);
   } catch (err) {

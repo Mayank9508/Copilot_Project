@@ -9,8 +9,8 @@ import {
 
 const router = Router();
 
-router.post("/", createFile);
-router.get("/", listFiles);
+router.post("/create", createFile);
+router.get("/listFiles", listFiles);
 router.get("/:name", readFile);
 router.put("/:name", updateFile);
 router.delete("/:name", deleteFile);

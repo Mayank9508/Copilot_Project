@@ -2,7 +2,8 @@ import { Router } from "express";
 import foldersRouter from "./folders/index.js";
 import filesRouter from "./files/index.js";
 import authRouter from "./user/index.js";
-import { getGeminiResponse, getHuggingFaceResponse } from "../controllers/ai/index.js";
+import aiRouter from "./ai/index.js";
+// import { getGeminiResponse, getHuggingFaceResponse } from "../controllers/ai/index.js";
 
 const router = Router();
 
@@ -10,11 +11,11 @@ const router = Router();
 router.use("/auth", authRouter);
 
 // folder and file routes here
-router.use("/folders", foldersRouter);
-router.use("/files", filesRouter);
+router.use("/folder", foldersRouter);
+router.use("/file", filesRouter);
 
 //AI routes here
-router.post("/huggingface/:chat", getHuggingFaceResponse);
-router.post("/gemini/:chat", getGeminiResponse);
+router.use("/ai", aiRouter);
+
 
 export default router;

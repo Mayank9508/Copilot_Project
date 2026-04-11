@@ -4,7 +4,7 @@ export const isAuthenticated = (req, res, next) => {
   const { accessToken, refreshToken } = req.cookies;
 
   if (!accessToken) {
-    return res.status(401).json({ message: "Access token is required" });
+    return res.status(401).json({ message: "Invalid access token" });
   }
 
   try {

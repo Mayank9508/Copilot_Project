@@ -1,4 +1,6 @@
-import { GoogleGenAI } from "@google/genai";
+// import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { env } from "../config/env.js";
 
 const useHuggingFace = async (prompt, key) => {
   const finalPrompt = `You are a helpful assistant. Always reply in English. And try to cover full ans in 500 tokens only. Query: ${prompt}`;
@@ -42,14 +44,38 @@ const useHuggingFace = async (prompt, key) => {
   return response.choices?.[0]?.message?.content || "No response";
 };
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyAcSLqE-YiUq05CxLuqL2aVnDAe4f3yDpY" });
+// const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
+const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
+
+// export async function callGemini(prompt) {
+//   const response = await ai.models.generateContent({
+//     model: "gemini-3-flash-preview",
+//     contents: prompt,
+//   });
+//   console.log(response.text);
+//   return response.text;
+// }
 
 export async function callGemini(prompt) {
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: prompt,
-  });
-  console.log(response.text);
+  try {
+    const model = genAI.getGenerativeModel({
+      model: "gemini-3-flash-preview", // ✅ updated model
+    });
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+
+    // console.log("Gemini RAW RESPONSE:", response.candidates[0].content.parts[0].text);
+    // const textResponse = response.candidates[0].content.parts[0].text;
+    // return textResponse;
+
+    return response.text();
+  } catch (error) {
+    console.log("Gemini ERROR:", error);
+    throw error;
+  }
 }
+
+
 
 export default useHuggingFace;

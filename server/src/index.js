@@ -4,6 +4,7 @@ import errorMiddleware from "./utils/error-handler.js";
 import { notFound } from "./utils/response.utils.js";
 import Router from "./routes/index.js";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 const app = express();
 
@@ -11,6 +12,12 @@ app.use(logger("tiny"));
 app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Vite default port
+    credentials: true,
+  })
+);
 app.set("trust proxy", true);
 
 // handling Routes
