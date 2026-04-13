@@ -1,26 +1,52 @@
 import { axiosInstance } from "../../config/axisoInstance.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
-// create file
-export const createFile = (data) => {
-  return axiosInstance.post("/file/create", data);
-};
+// 🔹 Create file
+export const createFile = asyncHandler(async (data) => {
+  const res = await axiosInstance.post("/file/create", data);
 
-// list files
-export const getFiles = () => {
-  return axiosInstance.get("/file/listFiles");
-};
+  return {
+    success: res.data.success,
+    file: res.data.file || data?.name,
+  };
+});
 
-// read file
-export const readFile = (name) => {
-  return axiosInstance.get(`/file/${name}`);
-};
+// 🔹 Get all files
+export const getFiles = asyncHandler(async () => {
+  const res = await axiosInstance.get("/file/listFiles");
 
-// update file
-export const updateFile = (name, data) => {
-  return axiosInstance.put(`/file/${name}`, data);
-};
+  return {
+    files: res.data.files || [],
+    count: res.data.files?.length || 0,
+  };
+});
 
-// delete file
-export const deleteFile = (name) => {
-  return axiosInstance.delete(`/file/${name}`);
-};
+// 🔹 Read file
+export const readFile = asyncHandler(async (name) => {
+  const res = await axiosInstance.get(`/file/${name}`);
+
+  return {
+    fileName: name,
+    content: res.data.content || res.data,
+  };
+});
+
+// 🔹 Update file
+export const updateFile = asyncHandler(async (name, data) => {
+  const res = await axiosInstance.put(`/file/${name}`, data);
+
+  return {
+    success: res.data.success,
+    updatedFile: name,
+  };
+});
+
+// 🔹 Delete file
+export const deleteFile = asyncHandler(async (name) => {
+  const res = await axiosInstance.delete(`/file/${name}`);
+
+  return {
+    success: res.data.success,
+    deletedFile: name,
+  };
+});

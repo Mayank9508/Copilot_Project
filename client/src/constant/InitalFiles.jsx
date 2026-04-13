@@ -1,0 +1,17 @@
+export const initialFiles = {
+  javascript: "// JavaScript code",
+  typescript: "// TypeScript code",
+  json: '{\n  "key": "value"\n}',
+  html: "<!-- HTML code -->",
+  css: "/* CSS code */",
+  markdown: "# Markdown code",
+  python: "# Python code",
+  java: "// Java code",
+  cpp: "// C++ code",
+  csharp: "// C# code",
+  go: "// Go code",
+  rust: "// Rust code",
+  php: "// PHP code",
+  sql: "-- SQL query",
+  shell: "# Shell script",
+};

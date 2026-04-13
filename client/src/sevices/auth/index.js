@@ -1,23 +1,37 @@
-// src/services/auth.service.js
-
 import { axiosInstance } from "../../config/axisoInstance.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
-export const registerUser = (data) => {
-  return axiosInstance.post("/auth/register", data);
-};
+// 🔹 Register
+export const registerUser = asyncHandler(async (data) => {
+  const response = await axiosInstance.post("/auth/register", data);
+  return response.data;
+});
 
-export const loginUser = (data) => {
-  return axiosInstance.post("/auth/login", data);
-};
+// 🔹 Login
+export const loginUser = asyncHandler(async (data) => {
+  const response = await axiosInstance.post("/auth/login", data);
 
-export const getMe = () => {
-  return axiosInstance.get("/auth/me");
-};
+  return {
+    success: response.data.success,
+    user: response.data?.user,
+    token: response.data.token,
+  };
+});
 
-export const refreshToken = () => {
-  return axiosInstance.get("/auth/refresh-token");
-};
+// 🔹 Get current user
+export const getMe = asyncHandler(async () => {
+  const response = await axiosInstance.get("/auth/me");
+  return response.data;
+});
 
-export const logoutUser = () => {
-  return axiosInstance.post("/auth/logout");
-};
+// 🔹 Refresh Token
+export const refreshToken = asyncHandler(async () => {
+  const response = await axiosInstance.get("/auth/refresh-token");
+  return response.data;
+});
+
+// 🔹 Logout
+export const logoutUser = asyncHandler(async () => {
+  const response = await axiosInstance.post("/auth/logout");
+  return response.data;
+});

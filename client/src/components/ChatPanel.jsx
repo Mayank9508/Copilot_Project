@@ -1,5 +1,8 @@
 import { useState, useRef } from "react";
-import { Plus, Monitor, Terminal, Cloud, Send } from "lucide-react";
+import { Plus, Send } from "lucide-react";
+
+// ✅ SERVICES
+import { askGemini, askHuggingFace } from "../sevices/ai/index.js";
 
 const ChatPanel = () => {
   const textareaRef = useRef(null);
@@ -7,8 +10,11 @@ const ChatPanel = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [openDropdown, setOpenDropdown] = useState(false);
+  const [selectedAI, setSelectedAI] = useState("gemini");
 
-  // 🔥 Auto height logic
+  const [loading, setLoading] = useState(false);
+
+  //  Auto height
   const handleChange = (e) => {
     setInput(e.target.value);
 
@@ -16,130 +22,164 @@ const ChatPanel = () => {
     if (!el) return;
 
     el.style.height = "auto";
-
-    const maxHeight = 120;
-
-    if (el.scrollHeight > maxHeight) {
-      el.style.height = maxHeight + "px";
-      el.style.overflowY = "auto";
-    } else {
-      el.style.height = el.scrollHeight + "px";
-      el.style.overflowY = "hidden";
-    }
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
   };
 
-  // ✅ Send message
-  const handleSend = () => {
+  // TYPEWRITER FUNCTION
+  const typeMessage = (text) => {
+    let index = 0;
+
+    const interval = setInterval(() => {
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+
+        if (last && last.role === "ai" && last.typing) {
+          const updated = [...prev];
+          updated[updated.length - 1] = {
+            ...last,
+            text: text.slice(0, index + 1),
+          };
+          return updated;
+        }
+
+        return prev;
+      });
+
+      index++;
+
+      if (index >= text.length) {
+        clearInterval(interval);
+
+        setMessages((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          updated[updated.length - 1] = {
+            ...last,
+            typing: false,
+          };
+          return updated;
+        });
+      }
+    }, 20);
+  };
+
+  // ✅ SEND MESSAGE
+  const handleSend = async () => {
     if (!input.trim()) return;
 
-    setMessages([...messages, { role: "user", text: input }]);
-    setInput("");
+    const userMsg = { role: "user", text: input };
 
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      let res;
+
+      if (selectedAI === "gemini") {
+        res = await askGemini(input);
+      } else {
+        res = await askHuggingFace(input);
+      }
+
+      const finalText = res?.response || "No response";
+
+      setMessages((prev) => [...prev, { role: "ai", text: "", typing: true }]);
+
+      setLoading(false);
+
+      typeMessage(finalText);
+    } catch (err) {
+      console.error(err);
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", text: "Error fetching AI response" },
+      ]);
+
+      setLoading(false);
     }
   };
 
   return (
     <div className="w-80 bg-[#252526] border-l border-gray-700 flex flex-col text-white">
-      
       {/* HEADER */}
       <div className="p-2 border-b border-gray-700 text-sm">
-        CHAT
+        CHAT ({selectedAI.toUpperCase()})
       </div>
 
-      {/* MESSAGES */}
-      <div className="flex-1 p-2 overflow-y-auto text-sm space-y-2">
+      {/* ✅ बस यहाँ class add ki hai */}
+      <div className="flex-1 p-2 overflow-y-auto text-sm space-y-2 chat-scroll">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-2 rounded text-xs ${
+            className={`p-2 rounded text-xs max-w-[80%] ${
               msg.role === "user"
-                ? "bg-[#0e639c] text-right"
-                : "bg-gray-700"
+                ? "bg-[#0e639c] ml-auto text-right"
+                : "bg-[#3c3c3c] mr-auto"
             }`}
           >
             {msg.text}
           </div>
         ))}
 
-        {messages.length === 0 && (
-          <p className="text-gray-400 text-xs">
-            Start a conversation...
-          </p>
+        {loading && (
+          <div className="bg-[#3c3c3c] mr-auto p-2 rounded text-xs w-fit flex gap-1">
+            <span className="animate-bounce">.</span>
+            <span className="animate-bounce delay-150">.</span>
+            <span className="animate-bounce delay-300">.</span>
+          </div>
         )}
       </div>
 
-      {/* INPUT AREA */}
+      {/* INPUT */}
       <div className="p-2 border-t border-gray-700">
         <div className="flex flex-col gap-2">
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={handleChange}
+            rows={1}
+            placeholder="Ask AI..."
+            className="w-full bg-gray-800 p-2 text-xs rounded resize-none outline-none"
+          />
 
-          {/* TEXTAREA WRAPPER */}
-          <div className="relative">
-            
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={handleChange}
-              rows={1}
-              placeholder="Ask AI..."
-              className="w-full bg-gray-800 p-2 pr-10 text-xs rounded resize-none outline-none transition-all duration-100"
-            />
-
-            {/* ✅ SEND BUTTON INSIDE (same theme) */}
-            <button
-              onClick={handleSend}
-              className="absolute bottom-1.5 right-3 bg-gray-700 p-1 rounded hover:bg-gray-600"
-            >
-              <Send size={14} />
-            </button>
-          </div>
-
-          {/* PLUS BUTTON */}
-          <div className="flex justify-start relative">
+          <div className="flex justify-between relative">
             <button
               onClick={() => setOpenDropdown(!openDropdown)}
-              className="bg-gray-700 px-2 py-1 rounded hover:bg-gray-600"
+              className="bg-gray-700 px-2 py-1 rounded"
             >
               <Plus size={14} />
             </button>
 
-            {/* DROPDOWN */}
+            <button onClick={handleSend} className="bg-gray-700 p-1 rounded">
+              <Send size={14} />
+            </button>
+
             {openDropdown && (
-              <div className="absolute bottom-8 left-0 w-64 bg-[#2d2d2d] border border-gray-600 rounded shadow-lg text-xs z-50">
-                
-                <div className="p-2 border-b border-gray-600 flex justify-between">
-                  <span className="flex items-center gap-1">
-                    <Plus size={14} /> New Chat Session
-                  </span>
-                  <span className="text-gray-400">Ctrl+N</span>
+              <div className="absolute bottom-8 left-0 w-40 bg-[#2d2d2d] border border-gray-600 rounded text-xs z-50">
+                <div
+                  className="p-2 hover:bg-gray-700 cursor-pointer"
+                  onClick={() => {
+                    setSelectedAI("gemini");
+                    setOpenDropdown(false);
+                  }}
+                >
+                  Gemini
                 </div>
 
-                <div className="p-2 text-gray-400">
-                  Continue In
-                </div>
-
-                <div className="px-2 pb-2 space-y-1">
-                  <div className="flex items-center gap-2 hover:bg-gray-700 p-1 rounded cursor-pointer">
-                    <Monitor size={14} /> Local
-                  </div>
-
-                  <div className="flex items-center gap-2 hover:bg-gray-700 p-1 rounded cursor-pointer">
-                    <Terminal size={14} /> Copilot CLI
-                  </div>
-
-                  <div className="flex items-center gap-2 hover:bg-gray-700 p-1 rounded cursor-pointer">
-                    <Cloud size={14} /> Cloud
-                  </div>
-                </div>
-
-                <div className="p-2 border-t border-gray-600 text-center hover:bg-gray-700 cursor-pointer">
-                  Learn about agent handoff...
+                <div
+                  className="p-2 hover:bg-gray-700 cursor-pointer"
+                  onClick={() => {
+                    setSelectedAI("zia");
+                    setOpenDropdown(false);
+                  }}
+                >
+                  Zia (HuggingFace)
                 </div>
               </div>
             )}
           </div>
-
         </div>
       </div>
     </div>

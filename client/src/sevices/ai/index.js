@@ -1,9 +1,20 @@
-import { axiosInstance } from "../../config/axisoInstance";
+import { axiosInstance } from "../../config/axisoInstance.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
-export const askGemini = (prompt) => {
-  return axiosInstance.post("/ai/gemini", { prompt });
-};
+export const askGemini = asyncHandler(async (prompt) => {
+  const res = await axiosInstance.post("/ai/gemini", { prompt });
 
-export const askHuggingFace = (prompt) => {
-  return axiosInstance.post("/ai/huggingface", { prompt });
-};
+  return {
+    success: res.data.success,
+    response: res.data.data?.result, 
+  };
+});
+
+export const askHuggingFace = asyncHandler(async (prompt) => {
+  const res = await axiosInstance.post("/ai/huggingface", { prompt });
+
+  return {
+    success: res.data.success,
+    response: res.data.data?.result, 
+  };
+});

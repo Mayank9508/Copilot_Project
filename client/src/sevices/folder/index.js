@@ -1,21 +1,43 @@
 import { axiosInstance } from "../../config/axisoInstance.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
-// create folder
-export const createFolder = (data) => {
-  return axiosInstance.post("/folder/create", data);
-};
+// 🔹 Create folder
+export const createFolder = asyncHandler(async (data) => {
+  const res = await axiosInstance.post("/folder/create", data);
 
-// list folders
-export const getFolders = () => {
-  return axiosInstance.get("/folder/listFolders");
-};
+  return {
+    success: res.data.success,
+    folder: res.data.folder || data?.name,
+  };
+});
 
-// rename folder
-export const renameFolder = (name, data) => {
-  return axiosInstance.put(`/folder/${name}`, data);
-};
+// 🔹 Get all folders
+export const getFolders = asyncHandler(async () => {
+  const res = await axiosInstance.get("/folder/listFolders");
 
-// delete folder
-export const deleteFolder = (name) => {
-  return axiosInstance.delete(`/folder/${name}`);
-};
+  return {
+    folders: res.data.folders || [],
+    count: res.data.folders?.length || 0,
+  };
+});
+
+// 🔹 Rename folder
+export const renameFolder = asyncHandler(async (name, data) => {
+  const res = await axiosInstance.put(`/folder/${name}`, data);
+
+  return {
+    success: res.data.success,
+    oldName: name,
+    newName: data?.name,
+  };
+});
+
+// 🔹 Delete folder
+export const deleteFolder = asyncHandler(async (name) => {
+  const res = await axiosInstance.delete(`/folder/${name}`);
+
+  return {
+    success: res.data.success,
+    deletedFolder: name,
+  };
+});
