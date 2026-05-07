@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../config/axisoInstance.js";
+import { axiosInstance } from "../../config/axiosInstance.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 // 🔹 Create folder
@@ -14,10 +14,8 @@ export const createFolder = asyncHandler(async (data) => {
 // 🔹 Get all folders
 export const getFolders = asyncHandler(async () => {
   const res = await axiosInstance.get("/folder/listFolders");
-
   return {
-    folders: res.data.folders || [],
-    count: res.data.folders?.length || 0,
+    folders: res.data.data?.folders || [],  // ✅ res.data.data
   };
 });
 

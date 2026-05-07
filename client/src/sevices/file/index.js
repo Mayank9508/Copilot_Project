@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../config/axisoInstance.js";
+import { axiosInstance } from "../../config/axiosInstance.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 // 🔹 Create file
@@ -14,10 +14,8 @@ export const createFile = asyncHandler(async (data) => {
 // 🔹 Get all files
 export const getFiles = asyncHandler(async () => {
   const res = await axiosInstance.get("/file/listFiles");
-
   return {
-    files: res.data.files || [],
-    count: res.data.files?.length || 0,
+    files: res.data.data?.files || [],  // ✅ res.data.data
   };
 });
 

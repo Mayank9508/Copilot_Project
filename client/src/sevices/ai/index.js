@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../config/axisoInstance.js";
+import { axiosInstance } from "../../config/axiosInstance.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 export const askGemini = asyncHandler(async (prompt) => {

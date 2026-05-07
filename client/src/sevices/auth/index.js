@@ -1,4 +1,4 @@
-import { axiosInstance } from "../../config/axisoInstance.js";
+import { axiosInstance } from "../../config/axiosInstance.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 
 // 🔹 Register
@@ -10,12 +10,7 @@ export const registerUser = asyncHandler(async (data) => {
 // 🔹 Login
 export const loginUser = asyncHandler(async (data) => {
   const response = await axiosInstance.post("/auth/login", data);
-
-  return {
-    success: response.data.success,
-    user: response.data?.user,
-    token: response.data.token,
-  };
+  return response.data; // ✅ seedha return karo
 });
 
 // 🔹 Get current user
