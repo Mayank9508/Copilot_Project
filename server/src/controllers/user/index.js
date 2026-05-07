@@ -63,3 +63,24 @@ export const me = async (req, res) => {
   const user = await User.findById(req.user.userId).select("-password");
   return success(res, { user });
 };
+
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      sameSite: "strict",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "strict",
+    });
+
+    return success(res, {
+      message: "Logout successful",
+    });
+  } catch (error) {
+    return customError(res, error, 500, "Logout failed");
+  }
+};

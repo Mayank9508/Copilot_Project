@@ -2,8 +2,25 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { env } from "../config/env.js";
 
+const buildPrompt = (prompt) => {
+  return `
+You are an AI coding assistant like GitHub Copilot.
+
+Rules:
+- Always reply in English and Hindi language both, irrespective of the language of the prompt.
+- Keep response concise (max 300-500 words)
+- If code is asked → provide clean formatted code
+- If explanation → keep it simple and structured
+- Avoid unnecessary text
+
+User Query:
+${prompt}
+`;
+};
+
 const useHuggingFace = async (prompt, key) => {
-  const finalPrompt = `You are a helpful assistant. Always reply in English. And try to cover full ans in 500 tokens only. Query: ${prompt}`;
+  const finalPrompt = buildPrompt(prompt);
+
   const query = async (data) => {
     const response = await fetch(
       "https://router.huggingface.co/v1/chat/completions",
@@ -25,16 +42,12 @@ const useHuggingFace = async (prompt, key) => {
 
   const response = await query({
     messages: [
-      //   {
-      //     role: "system",
-      //     content: "You are a helpful assistant. Always reply in English. And try to cover full ans in 500 tokens only.",
-      //   },
       {
         role: "user",
         content: finalPrompt,
       },
     ],
-    model: "zai-org/GLM-5.1:novita",
+    model: "zai-org/GLM-5.1:together",
     maxtokens: 500,
     temperature: 0.7,
   });
@@ -47,27 +60,16 @@ const useHuggingFace = async (prompt, key) => {
 // const ai = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
-// export async function callGemini(prompt) {
-//   const response = await ai.models.generateContent({
-//     model: "gemini-3-flash-preview",
-//     contents: prompt,
-//   });
-//   console.log(response.text);
-//   return response.text;
-// }
-
 export async function callGemini(prompt) {
   try {
+    const finalPrompt = buildPrompt(prompt);
+
     const model = genAI.getGenerativeModel({
-      model: "gemini-3-flash-preview", // ✅ updated model
+      model: "gemini-2.0-flash",
     });
 
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent(finalPrompt);
     const response = await result.response;
-
-    // console.log("Gemini RAW RESPONSE:", response.candidates[0].content.parts[0].text);
-    // const textResponse = response.candidates[0].content.parts[0].text;
-    // return textResponse;
 
     return response.text();
   } catch (error) {
@@ -75,7 +77,5 @@ export async function callGemini(prompt) {
     throw error;
   }
 }
-
-
 
 export default useHuggingFace;
